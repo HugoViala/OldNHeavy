@@ -43,7 +43,7 @@ class Filter:
 def listOfFilesInDir(directory):
     def listOfFilesInDirAux(directory, currentL):
         currentL.extend([FileInfo(os.path.join(directory,f)) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))])
-        if len([f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]) < 1:
+        if len([f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]) == 0:
             return currentL
         else:
             for folder in [os.path.join(directory,f) for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]:
@@ -59,8 +59,17 @@ def sortedFilesByFilter(fileList, filt = linearFilter, nDisplay = 50):
     l = fileList[:nDisplay]
     l.sort(key = lambda f : filt.filterFile(f), reverse=True)
     return l
-        
+
+def oldnheavy(directory, filt = linearFilter, nDisplay = 50):
+    return "\n".join([f.display() for f in sortedFilesByFilter(listOfFilesInDir(directory),filt, nDisplay)])
     
     
 if __name__ == "__main__":
-    print "\n".join([f.display() for f in sortedFilesByFilter(listOfFilesInDir("c:\\users\\hugo\\documents\\programmation"),linearFilter)])
+    import sys
+    if len(sys.argv) >= 2:
+        directory = sys.argv[1]
+    else:
+        directory = os.getcwd()
+    print directory
+    print oldnheavy(directory)
+    
