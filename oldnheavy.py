@@ -4,14 +4,30 @@
 import time
 import os
 import math
+from collections import OrderedDict
 
 class FileInfo:
     "store file metadata"
+    maxLen = OrderedDict()
+    maxLen["filename"] = 30
+    maxLen["fileext"] = 6
+    maxLen["size"] = 15
+    maxLen["timeModified"] = 4
     def __init__(self, filepath):
         (self.path, filefullname) = os.path.split(filepath)
         (self.filename, self.fileext) = os.path.splitext(filefullname)
         self.timeModified = int(math.ceil((time.time() - os.path.getmtime(filepath))/(60*60*24)))
         self.size = os.path.getsize(filepath)
+
+    def display(self):
+        s = ""
+        for (att, n) in FileInfo.maxLen.items():
+            if len(str(getattr(self, att))) <= n:
+                s = s + str(getattr(self, att))+ " " * (n - len(str(getattr(self, att) ) ) )  + "|"
+            else:
+                s = s + (str(getattr(self, att)))[:n] + "|"
+        return s + self.path
+        
 
 
 class Filter:
@@ -39,11 +55,12 @@ linearFilter = Filter()
 sizeOnlyFilter = Filter((lambda s : s), (lambda t : 1))
 timeOnlyFilter = Filter((lambda s : 1), (lambda t : t))
 
-def sortedFilesByFilter(fileList, filt = linearFilter):
-    fileList.sort(key = lambda f : filt.filterFile(f), reverse=True)
-    return fileList
+def sortedFilesByFilter(fileList, filt = linearFilter, nDisplay = 50):
+    l = fileList[:nDisplay]
+    l.sort(key = lambda f : filt.filterFile(f), reverse=True)
+    return l
         
     
     
 if __name__ == "__main__":
-    print "\n".join([f.filename for f in sortedFilesByFilter(listOfFilesInDir("c:\\users\\hugo\\documents\\github\\mybreak"),timeOnlyFilter)])
+    print "\n".join([f.display() for f in sortedFilesByFilter(listOfFilesInDir("c:\\users\\hugo\\documents\\programmation"),linearFilter)])
