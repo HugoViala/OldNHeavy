@@ -1,7 +1,7 @@
 """Class to properly encapsulate all the data required to rank a file """
 
 
-import UserDict
+from UserDict import UserDict
 import time
 import os
 import math
