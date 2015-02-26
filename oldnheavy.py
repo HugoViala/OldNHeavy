@@ -43,9 +43,10 @@ class Filter:
 
 
 def listOfFilesInDir(cwd):
+    unaccessibleDir = ["Ma musique", "Mes images", "Mes vid\xe9os"]
     def listOfFilesInDirAux(directory, currentL):
         currentL.extend([FileInfo(os.path.join(directory,f),cwd) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory,f))])
-        for folder in [os.path.join(directory,f) for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]:
+        for folder in [os.path.join(directory,f) for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f)) and f not in unaccessibleDir]:
             currentL = listOfFilesInDirAux(folder, currentL)
         return currentL
     return listOfFilesInDirAux(cwd, [])
@@ -60,6 +61,7 @@ def sortedFilesByFilter(fileList, filt = linearFilter, nDisplay = 50):
     return l[:nDisplay]
 
 def oldnheavy(directory, filt = linearFilter, nDisplay = 50):
+    print "Analyzing data..."
     return "\n".join([f.display() for f in sortedFilesByFilter(listOfFilesInDir(directory),filt, nDisplay)])
     
     
