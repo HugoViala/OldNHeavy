@@ -75,3 +75,6 @@ if __name__ == "__main__":
         directory = os.getcwd()
     print oldnheavy(directory)
     
+#TODO(hugo) : GUI ?
+#TODO(hugo) : display size of some dirs (but not all dirs are pertinent because otherwise they would always be on top... on you can decide with a flag...
+#TODO(hugo) : maybe do some cleaning : after all a "Filter" is a really a filter, just a function N^2 -> N and we could implement REAL filter (like only show files whose rank is >= CONST)
