@@ -43,6 +43,7 @@ class Filter:
 
 
 def listOfFilesInDir(cwd):
+    """look recursively for all the files in the cwd dir"""
     unaccessibleDir = ["Ma musique", "Mes images", "Mes vid\xe9os"]
     def listOfFilesInDirAux(directory, currentL):
         currentL.extend([FileInfo(os.path.join(directory,f),cwd) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory,f))])
@@ -56,6 +57,7 @@ sizeOnlyFilter = Filter((lambda s : s), (lambda t : 1))
 timeOnlyFilter = Filter((lambda s : 1), (lambda t : t))
 
 def sortedFilesByFilter(fileList, filt = linearFilter, nDisplay = 50):
+    """sort the files in the fileList according to the filter and displaying only a certain amount"""
     l = fileList
     l.sort(key = lambda f : filt.filterFile(f), reverse=True)
     return l[:nDisplay]
