@@ -6,15 +6,17 @@ import os
 import math
 from collections import OrderedDict
 
+
 class FileInfo:
     "store file metadata"
     maxLen = OrderedDict()
     maxLen["filename"] = 30
     maxLen["fileext"] = 6
-    maxLen["size"] = 15
+    maxLen["size"] = 10
     maxLen["timeModified"] = 4
-    def __init__(self, filepath):
+    def __init__(self, filepath, cwd):
         (self.path, filefullname) = os.path.split(filepath)
+        self.path = self.path[len(cwd):]
         (self.filename, self.fileext) = os.path.splitext(filefullname)
         self.timeModified = int(math.ceil((time.time() - os.path.getmtime(filepath))/(60*60*24)))
         self.size = os.path.getsize(filepath)
@@ -40,25 +42,22 @@ class Filter:
         return self.sizeFunc(fileinfo.size) * self.timeFunc(fileinfo.timeModified)
 
 
-def listOfFilesInDir(directory):
+def listOfFilesInDir(cwd):
     def listOfFilesInDirAux(directory, currentL):
-        currentL.extend([FileInfo(os.path.join(directory,f)) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))])
-        if len([f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]) == 0:
-            return currentL
-        else:
-            for folder in [os.path.join(directory,f) for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]:
-                currentL = listOfFilesInDirAux(folder, currentL)
-            return currentL
-    return listOfFilesInDirAux(directory, [])
+        currentL.extend([FileInfo(os.path.join(directory,f),cwd) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory,f))])
+        for folder in [os.path.join(directory,f) for f in os.listdir(directory) if os.path.isdir(os.path.join(directory,f))]:
+            currentL = listOfFilesInDirAux(folder, currentL)
+        return currentL
+    return listOfFilesInDirAux(cwd, [])
 
 linearFilter = Filter()
 sizeOnlyFilter = Filter((lambda s : s), (lambda t : 1))
 timeOnlyFilter = Filter((lambda s : 1), (lambda t : t))
 
 def sortedFilesByFilter(fileList, filt = linearFilter, nDisplay = 50):
-    l = fileList[:nDisplay]
+    l = fileList
     l.sort(key = lambda f : filt.filterFile(f), reverse=True)
-    return l
+    return l[:nDisplay]
 
 def oldnheavy(directory, filt = linearFilter, nDisplay = 50):
     return "\n".join([f.display() for f in sortedFilesByFilter(listOfFilesInDir(directory),filt, nDisplay)])
@@ -70,6 +69,5 @@ if __name__ == "__main__":
         directory = sys.argv[1]
     else:
         directory = os.getcwd()
-    print directory
     print oldnheavy(directory)
     
